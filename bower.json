@@ -1,0 +1,39 @@
+{
+    "name": "ghs-angular-bootstrap",
+    "version": "0.12.0",
+    "homepage": "https://github.com/erictsai6/angular-bootstrap",
+    "authors": [
+        "Eric Tsai <etsai@grubhub.com>"
+    ],
+    "description": "GrubhubSeamless version of angular bootstrap",
+    "main": [
+        "dist/ui-bootstrap*.js"
+    ],
+    "keywords": [
+        "ghs",
+        "grubhub",
+        "seamless",
+        "angular",
+        "bootstrap"
+    ],
+    "license": "MIT",
+    "ignore": [
+        "dist/assets",
+        "dist/index.html",
+        "dist/ui-bootstrap*SNAPSHOT*.js",
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests",
+        "*.md",
+        "LICENSE",
+        "Gruntfile.js",
+        "karma.conf.js",
+        "package.json",
+        "src",
+        "template",
+        "misc",
+        "docs"
+    ]
+}

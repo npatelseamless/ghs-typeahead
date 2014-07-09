@@ -51,6 +51,10 @@ describe('typeahead tests', function () {
     return element.find('ul.dropdown-menu');
   };
 
+  var isVisible = function(element) {
+    return !element.hasClass('ng-hide');
+  };
+
   var findMatches = function (element) {
     return findDropDown(element).find('li');
   };
@@ -70,7 +74,7 @@ describe('typeahead tests', function () {
         this.message = function () {
           return 'Expected "' + angular.mock.dump(typeaheadEl) + '" to be closed.';
         };
-        return typeaheadEl.length === 0;
+        return isVisible(typeaheadEl);
 
       }, toBeOpenWithActive: function (noOfMatches, activeIdx) {
 

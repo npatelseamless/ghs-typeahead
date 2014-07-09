@@ -67,7 +67,12 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //expressions used by typeahead
       var parserResult = typeaheadParser.parse(attrs.typeahead);
 
-      var hasFocus;
+      //private var to disable popup showing
+      var enablePopup = true;
+
+      //private var to keep track of previously made call
+      var previousViewValue;
+      var enableCache = attrs.typeaheadEnableCache ? originalScope.$eval(attrs.typeaheadEnableCache) : false;
 
       //create a child scope for the typeahead directive so we are not polluting original scope
       //with typeahead-specific data (matches, query etc.)
@@ -76,12 +81,33 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         scope.$destroy();
       });
 
+      scope.popupState = {
+          visible: false
+      };
+      scope.matches = [];
+
       // WAI-ARIA
       var popupId = 'typeahead-' + scope.$id + '-' + Math.floor(Math.random() * 10000);
       element.attr({
         'aria-autocomplete': 'list',
         'aria-expanded': false,
         'aria-owns': popupId
+      });
+
+      var showPopup = function() {
+        if (enablePopup && !scope.popupState.visible) {
+          scope.popupState.visible = true;
+          getMatchesAsync(modelCtrl.$viewValue);
+          scope.$digest();
+        }
+      };
+
+      element.on('click', function() {
+        showPopup();
+      });
+
+      element.on('focus', function() {
+        showPopup();
       });
 
       //pop-up element used to display matches
@@ -92,16 +118,18 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         active: 'activeIdx',
         select: 'select(activeIdx)',
         query: 'query',
-        position: 'position'
+        position: 'position',
+        'popup-state': 'popupState'
       });
+
       //custom item template
       if (angular.isDefined(attrs.typeaheadTemplateUrl)) {
         popUpEl.attr('template-url', attrs.typeaheadTemplateUrl);
       }
 
-      var resetMatches = function() {
-        scope.matches = [];
+      var hideMatches = function() {
         scope.activeIdx = -1;
+        scope.popupState.visible = false;
         element.attr('aria-expanded', false);
       };
 
@@ -128,10 +156,11 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           //it might happen that several async queries were in progress if a user were typing fast
           //but we are interested only in responses that correspond to the current view value
           var onCurrentRequest = (inputValue === modelCtrl.$viewValue);
-          if (onCurrentRequest && hasFocus) {
+
+          if (onCurrentRequest && scope.popupState.visible) {
             if (matches.length > 0) {
 
-              scope.activeIdx = 0;
+              scope.activeIdx = -1;
               scope.matches.length = 0;
 
               //transform labels
@@ -153,19 +182,20 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
               element.attr('aria-expanded', true);
             } else {
-              resetMatches();
+                scope.matches.length = 0;
+                hideMatches();
             }
           }
           if (onCurrentRequest) {
             isLoadingSetter(originalScope, false);
           }
         }, function(){
-          resetMatches();
+          hideMatches();
           isLoadingSetter(originalScope, false);
         });
       };
 
-      resetMatches();
+      hideMatches();
 
       //we need to propagate user's query so we can higlight matches
       scope.query = undefined;
@@ -185,11 +215,27 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         }
       };
 
+      var enablePopupPromise;
+      var enablePopupTimeout = function() {
+        cancelEnablePopupTimeout();
+
+        enablePopup = false;
+        enablePopupPromise = $timeout(function() {
+          enablePopup = true;
+          scope.$digest();
+        }, 250);
+      };
+      var cancelEnablePopupTimeout = function() {
+        if (enablePopupPromise) {
+          $timeout.cancel(enablePopupPromise);
+        }
+      };
+
       //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
       //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
       modelCtrl.$parsers.unshift(function (inputValue) {
 
-        hasFocus = true;
+        scope.popupState.visible = true;
 
         if (inputValue && inputValue.length >= minSearch) {
           if (waitTime > 0) {
@@ -201,7 +247,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         } else {
           isLoadingSetter(originalScope, false);
           cancelPreviousTimeout();
-          resetMatches();
+          hideMatches();
         }
 
         if (isEditable) {
@@ -246,18 +292,23 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         var locals = {};
         var model, item;
 
-        locals[parserResult.itemName] = item = scope.matches[activeIdx].model;
-        model = parserResult.modelMapper(originalScope, locals);
-        $setModelValue(originalScope, model);
-        modelCtrl.$setValidity('editable', true);
+        if (activeIdx >= 0 && scope.matches.length) {
+          locals[parserResult.itemName] = item = scope.matches[activeIdx].model;
+          model = parserResult.modelMapper(originalScope, locals);
+          $setModelValue(originalScope, model);
+          modelCtrl.$setValidity('editable', true);
 
-        onSelectCallback(originalScope, {
-          $item: item,
-          $model: model,
-          $label: parserResult.viewMapper(originalScope, locals)
-        });
+          onSelectCallback(originalScope, {
+            $item: item,
+            $model: model,
+            $label: parserResult.viewMapper(originalScope, locals)
+          });
 
-        resetMatches();
+          // Temporarily disable popup from displaying upon input focus
+          enablePopupTimeout();
+        }
+
+        hideMatches();
 
         //return focus to the input element if a match was selected via a mouse click event
         // use timeout to avoid $rootScope:inprog error
@@ -268,41 +319,46 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       element.bind('keydown', function (evt) {
 
         //typeahead is open and an "interesting" key was pressed
-        if (scope.matches.length === 0 || HOT_KEYS.indexOf(evt.which) === -1) {
+        if (!scope.popupState.visible || HOT_KEYS.indexOf(evt.which) === -1) {
           return;
         }
 
-        evt.preventDefault();
-
         if (evt.which === 40) {
+          evt.preventDefault();
           scope.activeIdx = (scope.activeIdx + 1) % scope.matches.length;
           scope.$digest();
 
         } else if (evt.which === 38) {
+          evt.preventDefault();
+          if (scope.activeIdx === -1) {
+            scope.activeIdx = 0;
+          }
           scope.activeIdx = (scope.activeIdx ? scope.activeIdx : scope.matches.length) - 1;
           scope.$digest();
 
         } else if (evt.which === 13 || evt.which === 9) {
-          scope.$apply(function () {
-            scope.select(scope.activeIdx);
-          });
-
+          if (scope.activeIdx !== -1) {
+            evt.preventDefault();
+            scope.$apply(function () {
+              scope.select(scope.activeIdx);
+            });
+          } else {
+            hideMatches();
+            scope.$digest();
+          }
         } else if (evt.which === 27) {
+          evt.preventDefault();
           evt.stopPropagation();
 
-          resetMatches();
+          hideMatches();
           scope.$digest();
         }
-      });
-
-      element.bind('blur', function (evt) {
-        hasFocus = false;
       });
 
       // Keep reference to click handler to unbind it.
       var dismissClickHandler = function (evt) {
         if (element[0] !== evt.target) {
-          resetMatches();
+          hideMatches();
           scope.$digest();
         }
       };
@@ -332,7 +388,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         query:'=',
         active:'=',
         position:'=',
-        select:'&'
+        select:'&',
+        popupState: '='
       },
       replace:true,
       templateUrl:'template/typeahead/typeahead-popup.html',
@@ -341,7 +398,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         scope.templateUrl = attrs.templateUrl;
 
         scope.isOpen = function () {
-          return scope.matches.length > 0;
+          return scope.popupState.visible && scope.matches.length > 0;
         };
 
         scope.isActive = function (matchIdx) {
