@@ -70,9 +70,11 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //private var to disable popup showing
       var enablePopup = true;
 
-      //private var to keep track of previously made call
-      var previousViewValue;
-      var enableCache = attrs.typeaheadEnableCache ? originalScope.$eval(attrs.typeaheadEnableCache) : false;
+      //private var to disable select right after matchSync is performed
+      var enableSelect = true;
+
+        //private var to keep track of whether or not we expose the getAsyncMatches function
+      var exposeReload = attrs.exposeReload ? originalScope.$eval(attrs.exposeReload) : false;
 
       //create a child scope for the typeahead directive so we are not polluting original scope
       //with typeahead-specific data (matches, query etc.)
@@ -158,6 +160,9 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           var onCurrentRequest = (inputValue === modelCtrl.$viewValue);
 
           if (onCurrentRequest && scope.popupState.visible) {
+
+            enableSelectTimeout();
+
             if (matches.length > 0) {
 
               scope.activeIdx = -1;
@@ -195,6 +200,10 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         });
       };
 
+      if (exposeReload) {
+          originalScope.ngTypeaheadReload = getMatchesAsync;
+      }
+
       hideMatches();
 
       //we need to propagate user's query so we can higlight matches
@@ -231,23 +240,33 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         }
       };
 
+      var enableSelectPromise;
+      var enableSelectTimeout = function() {
+        cancelSelectTimeout();
+
+        enableSelect = false;
+        enableSelectPromise = $timeout(function() {
+          enableSelect = true;
+          scope.$digest();
+        }, 250);
+      };
+      var cancelSelectTimeout = function() {
+        if (enableSelectPromise) {
+          $timeout.cancel(enableSelectPromise);
+        }
+      };
+
       //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
       //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
       modelCtrl.$parsers.unshift(function (inputValue) {
 
         scope.popupState.visible = true;
 
-        if (inputValue && inputValue.length >= minSearch) {
-          if (waitTime > 0) {
-            cancelPreviousTimeout();
-            scheduleSearchWithTimeout(inputValue);
-          } else {
-            getMatchesAsync(inputValue);
-          }
-        } else {
-          isLoadingSetter(originalScope, false);
+        if (waitTime > 0) {
           cancelPreviousTimeout();
-          hideMatches();
+          scheduleSearchWithTimeout(inputValue);
+        } else {
+          getMatchesAsync(inputValue);
         }
 
         if (isEditable) {
@@ -292,27 +311,30 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         var locals = {};
         var model, item;
 
-        if (activeIdx >= 0 && scope.matches.length) {
+        if (enableSelect && activeIdx >= 0 && scope.matches.length) {
           locals[parserResult.itemName] = item = scope.matches[activeIdx].model;
-          model = parserResult.modelMapper(originalScope, locals);
-          $setModelValue(originalScope, model);
-          modelCtrl.$setValidity('editable', true);
 
-          onSelectCallback(originalScope, {
-            $item: item,
-            $model: model,
-            $label: parserResult.viewMapper(originalScope, locals)
-          });
+          // We do not want to set anything if the item is disabled.
+          if (!item.ngDisabled) {
+            model = parserResult.modelMapper(originalScope, locals);
+            $setModelValue(originalScope, model);
+            modelCtrl.$setValidity('editable', true);
 
-          // Temporarily disable popup from displaying upon input focus
-          enablePopupTimeout();
+            onSelectCallback(originalScope, {
+              $item: item,
+              $model: model,
+              $label: parserResult.viewMapper(originalScope, locals)
+            });
+
+            // Temporarily disable popup from displaying upon input focus
+            enablePopupTimeout();
+            hideMatches();
+
+            //return focus to the input element if a match was selected via a mouse click event
+            // use timeout to avoid $rootScope:inprog error
+            $timeout(function() { element[0].focus(); }, 0, false);
+          }
         }
-
-        hideMatches();
-
-        //return focus to the input element if a match was selected via a mouse click event
-        // use timeout to avoid $rootScope:inprog error
-        $timeout(function() { element[0].focus(); }, 0, false);
       };
 
       //bind keyboard events: arrows up(38) / down(40), enter(13) and tab(9), esc(27)
@@ -355,9 +377,20 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         }
       });
 
+      function elementOrDropdownMatch(evt) {
+        var level = 0;
+        for (var el = evt.target; el && level <= 4; el = el.parentNode) {
+          if (el === element[0] || el === element[0].nextSibling) {
+            return true;
+          }
+          level++;
+        }
+        return false;
+      }
+
       // Keep reference to click handler to unbind it.
       var dismissClickHandler = function (evt) {
-        if (element[0] !== evt.target) {
+        if (enableSelect && !elementOrDropdownMatch(evt)) {
           hideMatches();
           scope.$digest();
         }
