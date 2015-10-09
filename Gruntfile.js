@@ -25,9 +25,9 @@ module.exports = function(grunt) {
     filename: 'ui-bootstrap',
     filenamecustom: '<%= filename %>-custom',
     meta: {
-      modules: 'angular.module("ui.bootstrap", [<%= srcModules %>]);',
-      tplmodules: 'angular.module("ui.bootstrap.tpls", [<%= tplModules %>]);',
-      all: 'angular.module("ui.bootstrap", ["ui.bootstrap.tpls", <%= srcModules %>]);',
+      modules: 'angular.module("ghs.bootstrap", [<%= srcModules %>]);',
+      tplmodules: 'angular.module("ghs.bootstrap.tpls", [<%= tplModules %>]);',
+      all: 'angular.module("ghs.bootstrap", ["ghs.bootstrap.tpls", <%= srcModules %>]);',
       banner: ['/*',
                ' * <%= pkg.name %>',
                ' * <%= pkg.homepage %>\n',
@@ -219,7 +219,7 @@ module.exports = function(grunt) {
     }
   });
 
-  //Common ui.bootstrap module containing all modules for src and templates
+  //Common ghs.bootstrap module containing all modules for src and templates
   //findModule: Adds a given module to config
   var foundModules = {};
   function findModule(name) {
@@ -242,7 +242,7 @@ module.exports = function(grunt) {
 
     var module = {
       name: name,
-      moduleName: enquote('ui.bootstrap.' + name),
+      moduleName: enquote('ghs.bootstrap.' + name),
       displayName: ucwords(breakup(name, ' ')),
       srcFiles: grunt.file.expand('src/'+name+'/*.js'),
       tplFiles: grunt.file.expand('template/'+name+'/*.html'),
@@ -274,8 +274,8 @@ module.exports = function(grunt) {
       var depArrayEnd = contents.indexOf(']', depArrayStart);
       var dependencies = contents.substring(depArrayStart + 1, depArrayEnd);
       dependencies.split(',').forEach(function(dep) {
-        if (dep.indexOf('ui.bootstrap.') > -1) {
-          var depName = dep.trim().replace('ui.bootstrap.','').replace(/['"]/g,'');
+        if (dep.indexOf('ghs.bootstrap.') > -1) {
+          var depName = dep.trim().replace('ghs.bootstrap.','').replace(/['"]/g,'');
           if (deps.indexOf(depName) < 0) {
             deps.push(depName);
             //Get dependencies for this new dependency
