@@ -2,7 +2,7 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.1 - 2015-10-13
+ * Version: 0.14.4 - 2015-10-14
  * License: MIT
  */
 angular.module("ghs.bootstrap", ["ghs.bootstrap.tpls", "ghs.bootstrap.typeahead"]);
@@ -60,6 +60,9 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
       //binding to a variable that indicates if matches are being retrieved asynchronously
       var isLoadingSetter = $parse(attrs.typeaheadLoading).assign || angular.noop;
+      
+      //override default popup template
+      var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || null;
 
       //a callback executed when a match is selected
       var onSelectCallback = $parse(attrs.typeaheadOnSelect);
@@ -130,7 +133,8 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
         select: 'select(activeIdx)',
         query: 'query',
         position: 'position',
-        'popup-state': 'popupState'
+        'popup-state': 'popupState',
+        parentTemplate: parentTemplate
       });
 
       //custom item template
@@ -434,7 +438,10 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
         popupState: '='
       },
       replace:true,
-      templateUrl:'template/typeahead/typeahead-popup.html',
+      templateUrl: function(element, attrs) {
+        var fileToLoad = attrs.parentTemplate ? attrs.parentTemplate : 'typeahead-popup';
+        return 'template/typeahead/' + fileToLoad + '.html';
+      },
       link:function (scope, element, attrs) {
 
         scope.templateUrl = attrs.templateUrl;
@@ -500,17 +507,3 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       return matchItem;
     };
   });
-
-angular.module("template/typeahead/typeahead-match.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("template/typeahead/typeahead-match.html",
-    "<a tabindex=\"-1\" bind-html-unsafe=\"match.label | typeaheadHighlight:query\"></a>");
-}]);
-
-angular.module("template/typeahead/typeahead-popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("template/typeahead/typeahead-popup.html",
-    "<ul class=\"dropdown-menu\" ng-show=\"isOpen()\" ng-style=\"{top: position.top+'px', left: position.left+'px', width: '100%'}\" style=\"display: block;\" role=\"listbox\" aria-hidden=\"{{!isOpen()}}\">\n" +
-    "    <li ng-repeat=\"match in matches track by $index\" ng-class=\"{active: isActive($index) }\" ng-mouseenter=\"selectActive($index)\" ng-click=\"selectMatch($index)\" role=\"option\" id=\"{{match.id}}\">\n" +
-    "        <div typeahead-match index=\"$index\" match=\"match\" query=\"query\" template-url=\"templateUrl\"></div>\n" +
-    "    </li>\n" +
-    "</ul>");
-}]);

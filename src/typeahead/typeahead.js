@@ -53,7 +53,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       var isLoadingSetter = $parse(attrs.typeaheadLoading).assign || angular.noop;
       
       //override default popup template
-      var parentTemplate =  originalScope.$eval(attrs.parentTemplate) || null;
+      var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || null;
 
       //a callback executed when a match is selected
       var onSelectCallback = $parse(attrs.typeaheadOnSelect);

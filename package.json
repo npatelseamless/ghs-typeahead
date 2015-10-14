@@ -1,7 +1,7 @@
 {
   "author": "https://github.com/angular-ui/bootstrap/graphs/contributors",
   "name": "ghs-typeahead",
-  "version": "0.14.1",
+  "version": "0.14.4",
   "homepage": "http://angular-ui.github.io/bootstrap/",
   "dependencies": {},
   "devDependencies": {

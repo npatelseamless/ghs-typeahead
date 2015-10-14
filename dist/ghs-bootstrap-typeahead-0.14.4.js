@@ -2,7 +2,7 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.1 - 2015-10-13
+ * Version: 0.14.4 - 2015-10-14
  * License: MIT
  */
 angular.module("ghs.bootstrap", ["ghs.bootstrap.typeahead"]);
@@ -59,6 +59,9 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
       //binding to a variable that indicates if matches are being retrieved asynchronously
       var isLoadingSetter = $parse(attrs.typeaheadLoading).assign || angular.noop;
+      
+      //override default popup template
+      var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || null;
 
       //a callback executed when a match is selected
       var onSelectCallback = $parse(attrs.typeaheadOnSelect);
@@ -129,7 +132,8 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
         select: 'select(activeIdx)',
         query: 'query',
         position: 'position',
-        'popup-state': 'popupState'
+        'popup-state': 'popupState',
+        parentTemplate: parentTemplate
       });
 
       //custom item template
@@ -433,7 +437,10 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
         popupState: '='
       },
       replace:true,
-      templateUrl:'template/typeahead/typeahead-popup.html',
+      templateUrl: function(element, attrs) {
+        var fileToLoad = attrs.parentTemplate ? attrs.parentTemplate : 'typeahead-popup';
+        return 'template/typeahead/' + fileToLoad + '.html';
+      },
       link:function (scope, element, attrs) {
 
         scope.templateUrl = attrs.templateUrl;
