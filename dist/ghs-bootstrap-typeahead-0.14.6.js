@@ -2,7 +2,7 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.5 - 2015-10-14
+ * Version: 0.14.6 - 2015-10-14
  * License: MIT
  */
 angular.module("ghs.bootstrap", ["ghs.bootstrap.typeahead"]);
@@ -61,7 +61,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       var isLoadingSetter = $parse(attrs.typeaheadLoading).assign || angular.noop;
       
       //override default popup template
-      var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || null;
+      var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || '';
 
       //a callback executed when a match is selected
       var onSelectCallback = $parse(attrs.typeaheadOnSelect);
@@ -438,7 +438,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       },
       replace:true,
       templateUrl: function(element, attrs) {
-        var fileToLoad = attrs.parenttemplate ? attrs.parenttemplate : 'typeahead-popup';
+        var fileToLoad = attrs.parenttemplate !== '' ? attrs.parenttemplate : 'typeahead-popup';
         return 'template/typeahead/' + fileToLoad + '.html';
       },
       link:function (scope, element, attrs) {

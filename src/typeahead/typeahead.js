@@ -53,7 +53,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       var isLoadingSetter = $parse(attrs.typeaheadLoading).assign || angular.noop;
       
       //override default popup template
-      var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || null;
+      var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || '';
 
       //a callback executed when a match is selected
       var onSelectCallback = $parse(attrs.typeaheadOnSelect);
@@ -430,7 +430,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       },
       replace:true,
       templateUrl: function(element, attrs) {
-        var fileToLoad = attrs.parenttemplate ? attrs.parenttemplate : 'typeahead-popup';
+        var fileToLoad = attrs.parenttemplate !== '' ? attrs.parenttemplate : 'typeahead-popup';
         return 'template/typeahead/' + fileToLoad + '.html';
       },
       link:function (scope, element, attrs) {
