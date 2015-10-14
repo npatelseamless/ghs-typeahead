@@ -437,7 +437,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       },
       replace:true,
       templateUrl: function(element, attrs) {
-        var fileToLoad = attrs.parentTemplate ? attrs.parentTemplate : 'typeahead-popup';
+        var fileToLoad = attrs.parenttemplate ? attrs.parenttemplate : 'typeahead-popup';
         return 'template/typeahead/' + fileToLoad + '.html';
       },
       link:function (scope, element, attrs) {
