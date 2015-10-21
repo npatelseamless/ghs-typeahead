@@ -2,7 +2,7 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.1 - 2015-10-13
+ * Version: 0.14.2 - 2015-10-21
  * License: MIT
  */
 angular.module("ghs.bootstrap", ["ghs.bootstrap.typeahead"]);
@@ -474,7 +474,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   }])
 
-  .filter('typeaheadHighlight', function() {
+  .filter('typeaheadHighlight', ['$injector', function($injector) {
     var isSanitizePresent;
     isSanitizePresent = $injector.has('$sanitize');
 
@@ -498,4 +498,4 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       }
       return matchItem;
     };
-  });
+  }]);

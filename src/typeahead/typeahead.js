@@ -466,7 +466,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   }])
 
-  .filter('typeaheadHighlight', function() {
+  .filter('typeaheadHighlight', ['$injector', function($injector) {
     var isSanitizePresent;
     isSanitizePresent = $injector.has('$sanitize');
 
@@ -490,4 +490,4 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       }
       return matchItem;
     };
-  });
+  }]);
