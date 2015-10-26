@@ -2,10 +2,11 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.6 - 2015-10-14
+ * Version: 0.14.7 - 2015-10-26
  * License: MIT
  */
-angular.module("ghs.bootstrap", ["ghs.bootstrap.typeahead"]);
+angular.module("ghs.bootstrap", ["ghs.bootstrap.tpls", "ghs.bootstrap.typeahead"]);
+angular.module("ghs.bootstrap.tpls", ["template/typeahead/typeahead-match.html","template/typeahead/typeahead-popup.html"]);
 angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
 /**
@@ -62,6 +63,9 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       
       //override default popup template
       var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || '';
+      
+      //Make the source an object containing arrays instead of just a single array
+      var isObjectBasedSource = originalScope.$eval(attrs.typeaheadObjectBased) === 'true';
 
       //a callback executed when a match is selected
       var onSelectCallback = $parse(attrs.typeaheadOnSelect);
@@ -133,7 +137,8 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
         query: 'query',
         position: 'position',
         'popup-state': 'popupState',
-        parentTemplate: parentTemplate
+        parentTemplate: parentTemplate,
+        isObjectBasedSource: isObjectBasedSource
       });
 
       //custom item template
@@ -181,13 +186,27 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
               scope.matches.length = 0;
 
               //transform labels
-              for(var i=0; i<matches.length; i++) {
-                locals[parserResult.itemName] = matches[i];
-                scope.matches.push({
-                  id: getMatchId(i),
-                  label: parserResult.viewMapper(scope, locals),
-                  model: matches[i]
-                });
+              
+              if(!isObjectBasedSource) {
+                for(var i=0; i<matches.length; i++) {
+                  locals[parserResult.itemName] = matches[i];
+                  scope.matches.push({
+                    id: getMatchId(i),
+                    label: parserResult.viewMapper(scope, locals),
+                    model: matches[i]
+                  });
+                }
+              } else {
+                for (var key in matches) {
+                  if(matches.hasOwnProperty(key)) {
+                    for(var i = 0; i < matches[key].length; i++) {
+                      scope.matches.push({
+                        id: getMatchId(key + i),
+                        model: matches[key][i]
+                      });
+                    }
+                  }
+                }
               }
 
               scope.query = inputValue;
