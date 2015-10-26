@@ -2,7 +2,7 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.7 - 2015-10-26
+ * Version: 0.14.8 - 2015-10-26
  * License: MIT
  */
 angular.module("ghs.bootstrap", ["ghs.bootstrap.tpls", "ghs.bootstrap.typeahead"]);
@@ -65,7 +65,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       var parentTemplate =  originalScope.$eval(attrs.typeaheadParentTemplate) || '';
       
       //Make the source an object containing arrays instead of just a single array
-      var isObjectBasedSource = originalScope.$eval(attrs.typeaheadObjectBased) === 'true';
+      var isObjectBasedSource = originalScope.$eval(attrs.typeaheadObjectBased) === true;
 
       //a callback executed when a match is selected
       var onSelectCallback = $parse(attrs.typeaheadOnSelect);
@@ -180,7 +180,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
             enableSelectTimeout();
 
-            if (matches.length > 0) {
+            if (matches.length > 0 || Object.keys(matches).length > 0) {
 
               scope.activeIdx = -1;
               scope.matches.length = 0;
