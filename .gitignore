@@ -8,6 +8,7 @@ lib-cov
 *.gz
 *.swp
 *.swo
+*.iml
 .DS_Store
 
 pids
@@ -22,3 +23,8 @@ npm-debug.log
 template/**/*.js
 
 .idea/*
+
+dist/assets
+dist/docs
+dist/*.html
+

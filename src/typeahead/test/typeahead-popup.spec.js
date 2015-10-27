@@ -2,7 +2,7 @@ describe('typeaheadPopup - result rendering', function () {
 
   var scope, $rootScope, $compile;
 
-  beforeEach(module('ui.bootstrap.typeahead'));
+  beforeEach(module('ghs.bootstrap.typeahead'));
   beforeEach(module('template/typeahead/typeahead-popup.html'));
   beforeEach(module('template/typeahead/typeahead-match.html'));
   beforeEach(inject(function (_$rootScope_, _$compile_) {
@@ -19,7 +19,7 @@ describe('typeaheadPopup - result rendering', function () {
       visible: true
     };
 
-    var el = $compile('<div><typeahead-popup matches="matches" popup-state="popupState" active="active" select="select(activeIdx)"></typeahead-popup></div>')(scope);
+    var el = $compile('<div><ghs-typeahead-popup matches="matches" popup-state="popupState" active="active" select="select(activeIdx)"></ghs-typeahead-popup></div>')(scope);
     $rootScope.$digest();
 
     var liElems = el.find('li');
@@ -37,7 +37,7 @@ describe('typeaheadPopup - result rendering', function () {
       visible: true
     };
 
-    var el = $compile('<div><typeahead-popup matches="matches" popup-state="popupState" active="active" select="select(activeIdx)"></typeahead-popup></div>')(scope);
+    var el = $compile('<div><ghs-typeahead-popup matches="matches" popup-state="popupState" active="active" select="select(activeIdx)"></ghs-typeahead-popup></div>')(scope);
     $rootScope.$digest();
 
     var liElems = el.find('li');
@@ -60,7 +60,7 @@ describe('typeaheadPopup - result rendering', function () {
     $rootScope.select = angular.noop;
     spyOn($rootScope, 'select');
 
-    var el = $compile('<div><typeahead-popup matches="matches" popup-state="popupState" active="active" select="select(activeIdx)"></typeahead-popup></div>')(scope);
+    var el = $compile('<div><ghs-typeahead-popup matches="matches" popup-state="popupState" active="active" select="select(activeIdx)"></ghs-typeahead-popup></div>')(scope);
     $rootScope.$digest();
 
     var liElems = el.find('li');

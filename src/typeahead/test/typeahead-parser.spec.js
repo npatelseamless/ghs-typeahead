@@ -2,9 +2,9 @@ describe('syntax parser', function () {
 
   var typeaheadParser, scope, filterFilter;
 
-  beforeEach(module('ui.bootstrap.typeahead'));
-  beforeEach(inject(function (_$rootScope_, _filterFilter_, _typeaheadParser_) {
-    typeaheadParser = _typeaheadParser_;
+  beforeEach(module('ghs.bootstrap.typeahead'));
+  beforeEach(inject(function (_$rootScope_, _filterFilter_, _ghsTypeaheadParser_) {
+    typeaheadParser = _ghsTypeaheadParser_;
     scope = _$rootScope_;
     filterFilter = _filterFilter_;
   }));

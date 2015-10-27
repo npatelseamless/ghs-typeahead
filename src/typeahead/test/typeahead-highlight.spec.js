@@ -1,39 +1,45 @@
 describe('typeaheadHighlight', function () {
 
-  var highlightFilter;
+  var highlightFilter, $log, $sce, logSpy;
 
-  beforeEach(module('ui.bootstrap.typeahead'));
-  beforeEach(inject(function (typeaheadHighlightFilter) {
-    highlightFilter = typeaheadHighlightFilter;
+  beforeEach(module('ghs.bootstrap.typeahead'));
+
+  beforeEach(inject(function(_$sce_) {
+    $sce = _$sce_;
   }));
 
-  it('should higlight a match', function () {
-    expect(highlightFilter('before match after', 'match')).toEqual('before <strong>match</strong> after');
+  beforeEach(inject(function(ghsTypeaheadHighlightFilter) {
+    highlightFilter = ghsTypeaheadHighlightFilter;
+  }));
+
+  it('should higlight a match', function() {
+    expect($sce.getTrustedHtml(highlightFilter('before match after', 'match'))).toEqual('before <strong>match</strong> after');
   });
 
-  it('should higlight a match with mixed case', function () {
-    expect(highlightFilter('before MaTch after', 'match')).toEqual('before <strong>MaTch</strong> after');
+  it('should higlight a match with mixed case', function() {
+    expect($sce.getTrustedHtml(highlightFilter('before MaTch after', 'match'))).toEqual('before <strong>MaTch</strong> after');
   });
 
-  it('should higlight all matches', function () {
-    expect(highlightFilter('before MaTch after match', 'match')).toEqual('before <strong>MaTch</strong> after <strong>match</strong>');
+  it('should higlight all matches', function() {
+    expect($sce.getTrustedHtml(highlightFilter('before MaTch after match', 'match'))).toEqual('before <strong>MaTch</strong> after <strong>match</strong>');
   });
 
-  it('should do nothing if no match', function () {
-    expect(highlightFilter('before match after', 'nomatch')).toEqual('before match after');
+  it('should do nothing if no match', function() {
+    expect($sce.getTrustedHtml(highlightFilter('before match after', 'nomatch'))).toEqual('before match after');
   });
 
-  it('should do nothing if no or empty query', function () {
-    expect(highlightFilter('before match after', '')).toEqual('before match after');
-    expect(highlightFilter('before match after', null)).toEqual('before match after');
-    expect(highlightFilter('before match after', undefined)).toEqual('before match after');
+  it('should do nothing if no or empty query', function() {
+    expect($sce.getTrustedHtml(highlightFilter('before match after', ''))).toEqual('before match after');
+    expect($sce.getTrustedHtml(highlightFilter('before match after', null))).toEqual('before match after');
+    expect($sce.getTrustedHtml(highlightFilter('before match after', undefined))).toEqual('before match after');
   });
 
-  it('issue 316 - should work correctly for regexp reserved words', function () {
-    expect(highlightFilter('before (match after', '(match')).toEqual('before <strong>(match</strong> after');
+  it('issue 316 - should work correctly for regexp reserved words', function() {
+    expect($sce.getTrustedHtml(highlightFilter('before (match after', '(match'))).toEqual('before <strong>(match</strong> after');
   });
 
-  it('issue 1777 - should work correctly with numeric values', function () {
-    expect(highlightFilter(123, '2')).toEqual('1<strong>2</strong>3');
+  it('issue 1777 - should work correctly with numeric values', function() {
+    expect($sce.getTrustedHtml(highlightFilter(123, '2'))).toEqual('1<strong>2</strong>3');
   });
+
 });

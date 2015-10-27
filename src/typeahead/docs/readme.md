@@ -11,7 +11,7 @@ The `sourceArray` expression can use a special `$viewValue` variable that corres
 
 This directive works with promises, meaning you can retrieve matches using the `$http` service with minimal effort.
 
-The typeahead directives provide several attributes:
+The ghs-typeahead directives provide several attributes:
 
 * `ng-model` <i class="glyphicon glyphicon-eye-open"></i>
    :

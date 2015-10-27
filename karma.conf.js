@@ -1,58 +1,63 @@
 
-// base path, that will be used to resolve files and exclude
-basePath = '.';
+module.exports = function (config) {
+  config.set({
+    // base path, that will be used to resolve files and exclude
+    basePath: '.',
 
-// list of files / patterns to load in the browser
-files = [
-  JASMINE,
-  JASMINE_ADAPTER,
-  'misc/test-lib/jquery-1.8.2.min.js',
-  'misc/test-lib/angular.js',
-  'misc/test-lib/angular-mocks.js',
-  'misc/test-lib/helpers.js',
-  'src/**/*.js',
-  'template/**/*.js'
-];
+    frameworks: ['jasmine'],
 
-// list of files to exclude
-exclude = [
-  'src/**/docs/*'
-];
+    // list of files / patterns to load in the browser
+    files: [
+      'misc/test-lib/jquery-1.8.2.min.js',
+      'misc/test-lib/angular.js',
+      'misc/test-lib/angular-mocks.js',
+      'misc/test-lib/helpers.js',
+      'misc/test-lib/position.js',
+      'src/**/*.js',
+      'template/**/*.js'
+    ],
 
-// Start these browsers, currently available:
-// - Chrome
-// - ChromeCanary
-// - Firefox
-// - Opera
-// - Safari
-// - PhantomJS
-browsers = [
-  'Chrome'
-];
+    // list of files to exclude
+    exclude: [
+      'src/**/docs/*'
+    ],
 
-// test results reporter to use
-// possible values: dots || progress
-reporters = ['progress'];
+    // Start these browsers, currently available:
+    // - Chrome
+    // - ChromeCanary
+    // - Firefox
+    // - Opera
+    // - Safari
+    // - PhantomJS
+    browsers: [
+      'Chrome'
+    ],
 
-reportSlowerThan = 100;
+    // test results reporter to use
+    // possible values: dots || progress
+    reporters: ['progress'],
 
-// web server port
-port = 9018;
+    reportSlowerThan: 100,
 
-// cli runner port
-runnerPort = 9100;
+    // web server port
+    port: 9018,
 
-// enable / disable colors in the output (reporters and logs)
-colors = true;
+    // cli runner port
+    runnerPort: 9100,
 
-// level of logging
-// possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-logLevel = LOG_INFO;
+    // enable / disable colors in the output (reporters and logs)
+    colors: true,
 
-// enable / disable watching file and executing tests whenever any file changes
-autoWatch = false;
+    // level of logging
+    // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
+    //logLevel = LOG_INFO;
 
-// Continuous Integration mode
-// if true, it capture browsers, run tests and exit
-singleRun = false;
+    // enable / disable watching file and executing tests whenever any file changes
+    autoWatch: false,
 
+    // Continuous Integration mode
+    // if true, it capture browsers, run tests and exit
+    singleRun: false
+
+  })
+};

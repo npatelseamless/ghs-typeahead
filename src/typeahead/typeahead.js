@@ -4,7 +4,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
  * A helper service that can parse typeahead's syntax (string provided by users)
  * Extracted to a separate service for ease of unit testing
  */
-  .factory('typeaheadParser', ['$parse', function ($parse) {
+  .factory('ghsTypeaheadParser', ['$parse', function ($parse) {
 
   //                      00000111000000000000022200000000000000003333333333333330000000000044000
   var TYPEAHEAD_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)$/;
@@ -29,8 +29,8 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
   };
 }])
 
-  .directive('typeahead', ['$compile', '$parse', '$q', '$timeout', '$document', '$position', 'typeaheadParser',
-    function ($compile, $parse, $q, $timeout, $document, $position, typeaheadParser) {
+  .directive('ghsTypeahead', ['$compile', '$parse', '$q', '$timeout', '$document', '$uibPosition', 'ghsTypeaheadParser',
+    function ($compile, $parse, $q, $timeout, $document, $uibPosition, ghsTypeaheadParser) {
 
   var HOT_KEYS = [9, 13, 27, 38, 40];
 
@@ -41,7 +41,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       //SUPPORTED ATTRIBUTES (OPTIONS)
 
       //minimal no of characters that needs to be entered before typeahead kicks-in
-      var minSearch = originalScope.$eval(attrs.typeaheadMinLength) || 1;
+      var minLength = originalScope.$eval(attrs.typeaheadMinLength) || 0;
 
       //minimal wait time after last character typed before typehead kicks-in
       var waitTime = originalScope.$eval(attrs.typeaheadWaitMs) || 0;
@@ -65,7 +65,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       var $setModelValue = $parse(attrs.ngModel).assign;
 
       //expressions used by typeahead
-      var parserResult = typeaheadParser.parse(attrs.typeahead);
+      var parserResult = ghsTypeaheadParser.parse(attrs.ghsTypeahead);
 
       //private var to disable popup showing
       var enablePopup = true;
@@ -113,7 +113,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       });
 
       //pop-up element used to display matches
-      var popUpEl = angular.element('<div typeahead-popup></div>');
+      var popUpEl = angular.element('<div ghs-typeahead-popup></div>');
       popUpEl.attr({
         id: popupId,
         matches: 'matches',
@@ -182,7 +182,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
               //position pop-up with matches - we need to re-calculate its position each time we are opening a window
               //with matches as a pop-up might be absolute-positioned and position of an input might have changed on a page
               //due to other elements being rendered
-              scope.position = appendToBody ? $position.offset(element) : $position.position(element);
+              scope.position = appendToBody ? $uibPosition.offset(element) : $uibPosition.position(element);
               scope.position.top = scope.position.top + element.prop('offsetHeight');
 
               element.attr('aria-expanded', true);
@@ -262,11 +262,18 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
         scope.popupState.visible = true;
 
-        if (waitTime > 0) {
-          cancelPreviousTimeout();
-          scheduleSearchWithTimeout(inputValue);
+        if (minLength === 0 || inputValue && inputValue.length >= minLength) {
+
+          if (waitTime > 0) {
+            cancelPreviousTimeout();
+            scheduleSearchWithTimeout(inputValue);
+          } else {
+            getMatchesAsync(inputValue);
+          }
         } else {
-          getMatchesAsync(inputValue);
+          isLoadingSetter(originalScope, false);
+          cancelPreviousTimeout();
+          hideMatches();
         }
 
         if (isEditable) {
@@ -413,7 +420,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
 }])
 
-  .directive('typeaheadPopup', function () {
+  .directive('ghsTypeaheadPopup', function () {
     return {
       restrict:'EA',
       scope:{
@@ -449,7 +456,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   })
 
-  .directive('typeaheadMatch', ['$http', '$templateCache', '$compile', '$parse', function ($http, $templateCache, $compile, $parse) {
+  .directive('ghsTypeaheadMatch', ['$http', '$templateCache', '$compile', '$parse', function ($http, $templateCache, $compile, $parse) {
     return {
       restrict:'EA',
       scope:{
@@ -466,7 +473,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   }])
 
-  .filter('typeaheadHighlight', ['$injector', function($injector) {
+  .filter('ghsTypeaheadHighlight', ['$injector', '$sce', function($injector, $sce) {
     var isSanitizePresent;
     isSanitizePresent = $injector.has('$sanitize');
 
