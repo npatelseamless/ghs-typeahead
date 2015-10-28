@@ -60,15 +60,15 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
           var inputFormatter = attrs.typeaheadInputFormatter ? $parse(attrs.typeaheadInputFormatter) : undefined;
 
-          var appendToBody = attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
+          var appendToBody =  attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
 
           //INTERNAL VARIABLES
-
+    
           //model setter executed upon match selection
           var $setModelValue = $parse(attrs.ngModel).assign;
-
+    
           //expressions used by typeahead
-          var parserResult = typeaheadParser.parse(attrs.typeahead);
+          var parserResult = ghsTypeaheadParser.parse(attrs.ghsTypeahead);
     
           //private var to disable popup showing
           var enablePopup = true;
