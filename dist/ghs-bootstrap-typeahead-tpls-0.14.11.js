@@ -2,7 +2,7 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.9 - 2015-10-28
+ * Version: 0.14.11 - 2015-10-28
  * License: MIT
  */
 angular.module("ghs.bootstrap", ["ghs.bootstrap.tpls", "ghs.bootstrap.typeahead"]);
@@ -13,7 +13,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
  * A helper service that can parse typeahead's syntax (string provided by users)
  * Extracted to a separate service for ease of unit testing
  */
-  .factory('typeaheadParser', ['$parse', function ($parse) {
+  .factory('ghsTypeaheadParser', ['$parse', function ($parse) {
 
     //                      00000111000000000000022200000000000000003333333333333330000000000044000
     var TYPEAHEAD_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)$/;
@@ -38,8 +38,8 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   }])
 
-  .directive('typeahead', ['$compile', '$parse', '$q', '$timeout', '$document', '$position', 'typeaheadParser',
-    function ($compile, $parse, $q, $timeout, $document, $position, typeaheadParser) {
+  .directive('ghsTypeahead', ['$compile', '$parse', '$q', '$timeout', '$document', '$uibPosition', 'ghsTypeaheadParser',
+    function ($compile, $parse, $q, $timeout, $document, $uibPosition, ghsTypeaheadParser) {
 
       var HOT_KEYS = [9, 13, 27, 38, 40];
 
@@ -78,10 +78,10 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
           //expressions used by typeahead
           var parserResult = typeaheadParser.parse(attrs.typeahead);
-
+    
           //private var to disable popup showing
           var enablePopup = true;
-
+    
           //private var to disable select right after matchSync is performed
           var enableSelect = true;
 
@@ -427,7 +427,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
     }])
 
-  .directive('typeaheadPopup', function () {
+  .directive('ghsTypeaheadPopup', function () {
     return {
       restrict: 'EA',
       scope: {
@@ -466,7 +466,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   })
 
-  .directive('typeaheadMatch', ['$http', '$templateCache', '$compile', '$parse', function ($http, $templateCache, $compile, $parse) {
+  .directive('ghsTypeaheadMatch', ['$http', '$templateCache', '$compile', '$parse', function ($http, $templateCache, $compile, $parse) {
     return {
       restrict: 'EA',
       scope: {
@@ -483,7 +483,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   }])
 
-  .filter('typeaheadHighlight', function () {
+  .filter('ghsTypeaheadHighlight', ['$injector', '$sce', function($injector, $sce) {
     var isSanitizePresent;
     isSanitizePresent = $injector.has('$sanitize');
 
@@ -507,4 +507,4 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
       }
       return matchItem;
     };
-  });
+  }]);
