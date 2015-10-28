@@ -2,10 +2,11 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.13 - 2015-10-28
+ * Version: 0.14.14 - 2015-10-28
  * License: MIT
  */
-angular.module("ghs.bootstrap", ["ghs.bootstrap.typeahead"]);
+angular.module("ghs.bootstrap", ["ghs.bootstrap.tpls", "ghs.bootstrap.typeahead"]);
+angular.module("ghs.bootstrap.tpls", ["template/typeahead/typeahead-match.html","template/typeahead/typeahead-popup.html"]);
 angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
 /**
@@ -124,7 +125,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
           });
 
           //pop-up element used to display matches
-          var popUpEl = angular.element('<div typeahead-popup></div>');
+          var popUpEl = angular.element('<div ghs-typeahead-popup></div>');
           popUpEl.attr({
             id: popupId,
             matches: 'matches',
