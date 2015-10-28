@@ -2,7 +2,7 @@
  * ghs-typeahead
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.14.12 - 2015-10-28
+ * Version: 0.14.13 - 2015-10-28
  * License: MIT
  */
 angular.module("ghs.bootstrap", ["ghs.bootstrap.tpls", "ghs.bootstrap.typeahead"]);
@@ -69,7 +69,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
           var inputFormatter = attrs.typeaheadInputFormatter ? $parse(attrs.typeaheadInputFormatter) : undefined;
 
-          var appendToBody =  attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
+          var appendToBody = attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
 
           //INTERNAL VARIABLES
     
@@ -176,7 +176,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
 
                 enableSelectTimeout();
 
-                if (matches.length > 0 || Object.keys(matches).length > 0) {
+                if (matches.length > 0) {
 
                   scope.activeIdx = -1;
                   scope.matches.length = 0;
@@ -191,12 +191,11 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
                     });
                   }
 
-
                   scope.query = inputValue;
                   //position pop-up with matches - we need to re-calculate its position each time we are opening a window
                   //with matches as a pop-up might be absolute-positioned and position of an input might have changed on a page
                   //due to other elements being rendered
-                  scope.position = appendToBody ? $position.offset(element) : $position.position(element);
+                  scope.position = appendToBody ? $uibPosition.offset(element) : $uibPosition.position(element);
                   scope.position.top = scope.position.top + element.prop('offsetHeight');
 
                   element.attr('aria-expanded', true);
@@ -483,7 +482,7 @@ angular.module('ghs.bootstrap.typeahead', ['ui.bootstrap.position'])
     };
   }])
 
-  .filter('ghsTypeaheadHighlight', ['$injector', '$sce', function($injector, $sce) {
+  .filter('ghsTypeaheadHighlight', ['$injector', '$sce', function ($injector, $sce) {
     var isSanitizePresent;
     isSanitizePresent = $injector.has('$sanitize');
 
